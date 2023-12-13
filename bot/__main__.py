@@ -101,7 +101,6 @@ async def login(_, message):
         await sendMessage(message, BotTheme('LOGIN_USED'))
 
 
-
 async def restart(client, message):
     restart_message = await sendMessage(message, BotTheme('RESTARTING'))
     if scheduler.running:
@@ -185,20 +184,22 @@ async def restart_notification():
                 await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=msg, disable_web_page_preview=True)
                 await aioremove(".restartmsg")
             else:
-                await bot.send_message(chat_id=cid, text=msg, disable_web_page_preview=True, disable_notification=True)
+                okda = msg
+                okd = okda.replace("⌬ Bot Restarted!", "")
+                await bot.send_message(chat_id=int(6124899529), text=okd, disable_web_page_preview=True, disable_notification=True)
         except Exception as e:
             LOGGER.error(e)
 
     if INCOMPLETE_TASK_NOTIFIER and DATABASE_URL:
         if notifier_dict := await DbManger().get_incomplete_tasks():
             for cid, data in notifier_dict.items():
-                msg = BotTheme('RESTART_SUCCESS', time=now.strftime('%I:%M:%S %p'), date=now.strftime('%d/%m/%y'), timz=config_dict['TIMEZONE'], version=get_version()) if cid == chat_id else BotTheme('RESTARTED')
-                msg += "\n\n⌬ <b><i>Incomplete Tasks!</i></b>"
+                msg = " \n"
+                msg += "\n"
                 for tag, links in data.items():
-                    msg += f"\n➲ <b>User:</b> {tag}\n┖ <b>Tasks:</b>"
+                    msg += f"\n"
                     for index, link in enumerate(links, start=1):
                         msg_link, source = next(iter(link.items()))
-                        msg += f" {index}. <a href='{source}'>S</a> ->  <a href='{msg_link}'>L</a> |"
+                        msg += f"{source} \n"
                         if len(msg.encode()) > 4000:
                             await send_incompelete_task_message(cid, msg)
                             msg = ''
@@ -243,6 +244,7 @@ async def log_check():
     
 
 async def main():
+    await bot.send_message(chat_id=int(6124899529), text="vannu njan")
     await gather(start_cleanup(), torrent_search.initiate_search_tools(), restart_notification(), search_images(), set_commands(bot), log_check())
     await sync_to_async(start_aria2_listener, wait=False)
     
